@@ -35,8 +35,8 @@ if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
 # API Configuration
-API_URL = "http://api:8000/api/v1"
-# API_URL = "http://localhost:8000/api/v1"
+# API_URL = "http://api:8000/api/v1"  # uncomment when using docker compose
+API_URL = "http://localhost:8000/api/v1"  # uncomment when using docker run
 
 
 def post_request(url: str, files: Optional[List[Any]]=None, params: Optional[Dict[str, Any]]=None, json: Optional[Dict[str, Any]]=None) -> Optional[requests.Response]:

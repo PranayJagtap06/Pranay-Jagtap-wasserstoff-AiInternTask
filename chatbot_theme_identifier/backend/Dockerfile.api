@@ -60,11 +60,11 @@ ENV CHROMA_CACHE_DIR=/backend/.cache/chroma
 ENV STREAMLIT_SERVER_MAX_UPLOAD_SIZE=2000
 ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-# Mount secret at build time (uncomment for remote deployment) 
-# RUN --mount=type=secret,id=GEMINI_API_KEY,mode=0444,required=true \
-#     if [ -f "/run/secrets/GEMINI_API_KEY" ]; then \
-#     export GEMINI_API_KEY=$(cat /run/secrets/GEMINI_API_KEY); \
-#     fi
+# Mount secret at build time (comment for testing local deployment) 
+RUN --mount=type=secret,id=GEMINI_API_KEY,mode=0444,required=true \
+    if [ -f "/run/secrets/GEMINI_API_KEY" ]; then \
+    export GEMINI_API_KEY=$(cat /run/secrets/GEMINI_API_KEY); \
+    fi
 
 # Set environment variable to read from container's environment
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -80,6 +80,5 @@ wait''' > /backend/start.sh && chmod +x /backend/start.sh
 
 # Commands
 # Uncomment uvicorn command to use docker compose and comment out start.sh command
-# CMD ["/backend/start.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300", "--reload"]
-
+CMD ["/backend/start.sh"]
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300", "--reload"]
