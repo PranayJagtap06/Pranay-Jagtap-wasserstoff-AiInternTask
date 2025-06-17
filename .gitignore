@@ -4,6 +4,4 @@
 *.pyc
 */.vscode
 */.idea
-chatbot_theme_identifier/backend/data/chroma/*
-chatbot_theme_identifier/backend/data/uploads/*
 *.npy
