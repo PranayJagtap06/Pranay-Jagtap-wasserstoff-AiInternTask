@@ -165,11 +165,11 @@ streamlit run backend/main.py --server.port 8501 --server.address 0.0.0.0 --serv
 cd backend
 
 # Build the Docker image
-docker build -f Dockerfile.api -t chatbot-theme-identifier .
+docker build -t chatbot-theme-identifier .
 
 # Run the container
-docker run -p 8000:8000 -p 8501:8501 \
-  -e GEMINI_API_KEY=your_api_key_here \
+docker run -p 8501:8501 \
+  --env-file ./.env \
   chatbot-theme-identifier
 ```
 
@@ -177,8 +177,8 @@ docker run -p 8000:8000 -p 8501:8501 \
 ```bash
 cd backend
 
-# Build the service and run
-GEMINI_API_KEY=your_api_key_here docker compose up -w --menu --build
+# Build the service and 
+docker compose up -w --menu --build
 ```
 
 ## Usage Guide

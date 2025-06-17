@@ -7,10 +7,10 @@ import os
 from pathlib import Path
 from typing import Set
 from pydantic_settings import BaseSettings
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # # Load environment variables
-# load_dotenv()
+load_dotenv()
 
 
 class Settings(BaseSettings):

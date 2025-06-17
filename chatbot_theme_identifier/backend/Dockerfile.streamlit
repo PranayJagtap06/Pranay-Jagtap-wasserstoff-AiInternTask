@@ -48,10 +48,10 @@ ENV STREAMLIT_SERVER_MAX_UPLOAD_SIZE=2000
 ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Mount secret at build time (needed for remote deployment)
-# RUN --mount=type=secret,id=GEMINI_API_KEY,mode=0444,required=true \
-#     if [ -f "/run/secrets/GEMINI_API_KEY" ]; then \
-#     export GEMINI_API_KEY=$(cat /run/secrets/GEMINI_API_KEY); \
-#     fi
+RUN --mount=type=secret,id=GEMINI_API_KEY \
+    if [ -f "/run/secrets/GEMINI_API_KEY" ]; then \
+    export GEMINI_API_KEY=$(cat /run/secrets/GEMINI_API_KEY); \
+    fi
 
 # Set environment variable to read from container's environment
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}

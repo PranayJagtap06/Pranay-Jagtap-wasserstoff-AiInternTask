@@ -1,9 +1,9 @@
 FROM python:3.13-slim-bookworm
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
-    libmagic1 \
+    libmagic1 axel \
     wget neovim\
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,7 +13,8 @@ WORKDIR /backend
 # Copy streamlit app code, requirements and install dependencies
 COPY requirements-api.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --upgrade pip && \
+RUN --mount=type=cache,target=/root/.cache/pip\
+    pip install --upgrade pip && \
     pip install --no-cache-dir pip-tools && \
     for i in {1..3}; do \
         pip install --no-cache-dir -r requirements-api.txt && break || \
@@ -33,8 +34,8 @@ RUN pip install --upgrade pip && \
 
 # Create necessary directories
 RUN mkdir -p /backend/data/chroma /backend/data/uploads /backend/.cache/chroma /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2 && \
-    wget -q https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz \
-    -O /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz && \
+    axel -n 30 https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz \
+    -o /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz && \
     cd /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2 && \
     tar xzf onnx.tar.gz
     # chown -R app:app /app && \
@@ -61,7 +62,7 @@ ENV STREAMLIT_SERVER_MAX_UPLOAD_SIZE=2000
 ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Mount secret at build time (comment for testing local deployment) 
-RUN --mount=type=secret,id=GEMINI_API_KEY,mode=0444,required=true \
+RUN --mount=type=secret,id=GEMINI_API_KEY \
     if [ -f "/run/secrets/GEMINI_API_KEY" ]; then \
     export GEMINI_API_KEY=$(cat /run/secrets/GEMINI_API_KEY); \
     fi
@@ -70,15 +71,15 @@ RUN --mount=type=secret,id=GEMINI_API_KEY,mode=0444,required=true \
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 
 # Expose ports for FastAPI and Streamlit
-EXPOSE 8000 8501
+EXPOSE 8501
 
 # Create startup script
 RUN echo '''#!/bin/bash\n\
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 300 --reload & \
-streamlit run main.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true & \n\
+streamlit run main.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true \
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 300 --reload & \n\
 wait''' > /backend/start.sh && chmod +x /backend/start.sh
 
 # Commands
 # Uncomment uvicorn command to use docker compose and comment out start.sh command
-CMD ["/backend/start.sh"]
-# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300", "--reload"]
+# CMD ["/backend/start.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300", "--reload"]
