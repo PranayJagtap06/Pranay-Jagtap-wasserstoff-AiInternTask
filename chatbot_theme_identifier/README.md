@@ -3,6 +3,8 @@
 
 This project is an GEMINI AI-powered chatbot that can process multiple documents, answer questions about their content, and identify common themes across documents.
 
+[***Visit the the deployed Streamlit App***](https://pranayj97-gemini-chatbot-apiapp.hf.space)
+
 ## Features
 ----
 

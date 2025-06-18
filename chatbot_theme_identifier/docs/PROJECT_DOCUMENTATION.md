@@ -101,7 +101,7 @@ source venv/bin/activate  # Linux/MacOS
 venv\Scripts\activate     # Windows
 
 # Install Python dependencies
-pip install -r backend/requirements.txt
+pip install -r chatbot-theme-identifier/requirements.txt
 ```
 
 ### 3. Environment Configuration
