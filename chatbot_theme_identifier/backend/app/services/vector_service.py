@@ -41,10 +41,7 @@ class VectorService:
             is_persistent=False,
             chroma_query_request_timeout_seconds=300
         )
-        self.client = chromadb.PersistentClient(
-            path=str(Config.CHROMA_PERSIST_DIR),
-            settings=CHROMA_SETTINGS
-        )
+        self.client = chromadb.Client()
         try:
             self.collection = self.client.get_collection(collection_name)
             logger.info(f"Retrieved existing collection: {collection_name}")

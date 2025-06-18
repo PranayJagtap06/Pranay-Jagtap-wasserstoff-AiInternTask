@@ -21,17 +21,26 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         echo "Retry attempt $i" && sleep 5; \
     done
 
+RUN useradd user
+
+USER user
+
+ENV HOME=/home/user \
+    PATH=$HOME/.local/bin:$PATH
+
+WORKDIR $HOME/backend
+
 # Create necessary directories and download ONNX model
-RUN mkdir -p /backend/data/chroma /backend/data/uploads /backend/.cache/chroma /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2 && \
+RUN mkdir -p $HOME/backend/data/chroma $HOME/backend/data/uploads $HOME/.cache/chroma $HOME/.cache/chroma/onnx_models/all-MiniLM-L6-v2 $HOME/backend/chatbotApp_logs && \
     axel -n 30 https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz \
-    -o /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz && \
-    tar xzf /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz
+    -o $HOME/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz && \
+    tar xzf $HOME/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx.tar.gz
 
 # Copy application code
-COPY . /backend
+COPY --chown=user . $HOME/backend
 
 # Set environment variables
-ENV PYTHONPATH=/backend:/backend/app
+ENV PYTHONPATH=$HOME/backend:$HOME/backend/app
 ENV PYTHONUNBUFFERED=1
 ENV DOCKER_BUILDKIT=1
 ENV COMPOSE_HTTP_TIMEOUT=300
@@ -52,13 +61,13 @@ RUN --mount=type=secret,id=GEMINI_API_KEY \
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 
 # Expose ports for FastAPI and Streamlit
-EXPOSE 8501
+EXPOSE 7860
 
 # Create startup script
 RUN echo '''#!/bin/bash\n\
-streamlit run main.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true & \n\
+streamlit run main.py --server.port 7860 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true & \n\
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 300 --reload & \n\
-wait''' > /backend/start.sh && chmod +x /backend/start.sh
+wait''' > ./start.sh && chmod +x ./start.sh
 
 # Commands
-CMD ["/backend/start.sh"]
+CMD ["./start.sh"]

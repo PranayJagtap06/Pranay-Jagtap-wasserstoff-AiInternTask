@@ -452,9 +452,8 @@ def main():
     st.markdown(
         """
         <div style='text-align: center; color: #666;'>
-            <p><b>Disclaimer: Theme identification and description made by the model can be marginally inaccurate. User discretion and expert consultaion is advised. Addiionally, we reserve the right to modify or remove AI service.</b></p>
-            <p>Document Research & Theme Identification Chatbot</p>
-            <p><em>Built for Wasserstoff AI Internship Task</em></p>
+            <p><b>Disclaimer: Theme identification and description made by the model can be marginally inaccurate. User discretion and expert consultaion is advised. Addiionally, we reserve the right to modify or remove AI service.</b><br>So be patient and have a coffeee... Well, it may not take that long, still it's always good to have a ☕...</p>
+            <p><em>Document Research & Theme Identification Chatbot</em></p>
         </div>
         """,
         unsafe_allow_html=True,
