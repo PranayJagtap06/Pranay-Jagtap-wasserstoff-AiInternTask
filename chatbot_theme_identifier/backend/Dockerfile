@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
     pip install --no-cache-dir pip-tools && \
     for i in {1..3}; do \
-        pip install --no-cache-dir -r requirements-api.txt && break || \
+    	pip install --no-cache-dir -r requirements-api.txt && break || \
         echo "Retry attempt $i" && sleep 5; \
     done
 

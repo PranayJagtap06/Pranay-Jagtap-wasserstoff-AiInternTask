@@ -17,22 +17,29 @@ RUN pip install --upgrade pip && \
         echo "Retry attempt $i" && sleep 5; \
     done
 
+RUN useradd user
+
+USER user
+
+ENV HOME=/home/user \
+    PATH=$HOME/.local/bin:$PATH
+
+WORKDIR $HOME/backend
+
 # Create a non-root user
 # RUN groupadd -r app && \
 #     useradd -r -g app -s /bin/bash -d /home/app app
 
-# Copy application code
-COPY . /backend
-# COPY .streamlit .
-# RUN chown -R app:app /app
-
-# Switch to non-root user
-# USER app
-
 # Create necessary directories
-RUN mkdir -p /backend/data/chroma /backend/data/uploads /.streamlit
+RUN mkdir -p $HOME/backend/data/chroma $HOME/backend/data/uploads $HOME/backend/.streamlit
     # chown -R app:app /app /.streamlit && \
     # chmod -R 755 /app /.streamlit
+
+
+# Copy application code
+COPY --chown=user . $HOME/backend
+# COPY .streamlit .
+# RUN chown -R app:app /app
 
 # Set environment variable
 # ENV HOME="/home/app"
@@ -57,7 +64,7 @@ RUN --mount=type=secret,id=GEMINI_API_KEY \
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 
 # Expose ports for FastAPI and Streamlit
-EXPOSE 8501
+EXPOSE 7806
 
 # Command to run services
-CMD ["streamlit", "run", "main.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.enableCORS", "true", "--server.enableXsrfProtection", "true"]
+CMD ["streamlit", "run", "main.py", "--server.port", "7806", "--server.address", "0.0.0.0", "--server.enableCORS", "true", "--server.enableXsrfProtection", "true"]

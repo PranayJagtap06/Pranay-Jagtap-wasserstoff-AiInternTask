@@ -32,6 +32,15 @@ RUN --mount=type=cache,target=/root/.cache/pip\
 # RUN groupadd -r app && \
 #     useradd -r -g app -s /bin/bash -d /home/app app
 
+RUN useradd user
+
+USER user
+
+ENV HOME=/home/user \
+    PATH=$HOME/.local/bin:$PATH
+
+WORKDIR $HOME/backend
+
 # Create necessary directories
 RUN mkdir -p /backend/data/chroma /backend/data/uploads /backend/.cache/chroma /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2 && \
     axel -n 30 https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz \
@@ -42,7 +51,7 @@ RUN mkdir -p /backend/data/chroma /backend/data/uploads /backend/.cache/chroma /
     # chmod -R 755 /app
 
 # Copy application code
-COPY . /backend
+COPY --chown=user . $HOME/backendd
 # RUN chown -R app:app /app
 
 # Switch to non-root user
@@ -71,13 +80,13 @@ RUN --mount=type=secret,id=GEMINI_API_KEY \
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 
 # Expose ports for FastAPI and Streamlit
-EXPOSE 8501
+EXPOSE 8000
 
 # Create startup script
 RUN echo '''#!/bin/bash\n\
-streamlit run main.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true \
+streamlit run main.py --server.port 7806 --server.address 0.0.0.0 --server.enableCORS true --server.enableXsrfProtection true \
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 300 --reload & \n\
-wait''' > /backend/start.sh && chmod +x /backend/start.sh
+wait''' > ./start.sh && chmod +x ./start.sh
 
 # Commands
 # Uncomment uvicorn command to use docker compose and comment out start.sh command
